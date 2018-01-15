@@ -53,7 +53,6 @@ namespace WhaleIsland.Trpg.Dice
         /// <param name="font">字体。</param>
         public override void PrivateMessage(int subType, int sendTime, long fromQQ, string msg, int font)
         {
-
             if (fromQQ != LoginQQ)
             {
                 try
@@ -188,7 +187,6 @@ namespace WhaleIsland.Trpg.Dice
         {
             // 处理请求-好友添加。
             CQ.SetFriendAddRequest(responseFlag, CQReactType.Allow);
-            Debug.WriteLine("添加好友{0}成功。", fromQQ);
         }
 
         /// <summary>
@@ -202,8 +200,7 @@ namespace WhaleIsland.Trpg.Dice
         /// <param name="responseFlag">反馈标识(处理请求用)。</param>
         public override void RequestAddGroup(int subType, int sendTime, long fromGroup, long fromQQ, string msg, string responseFlag)
         {
-            CQ.SetGroupAddRequest(responseFlag, CQRequestType.GroupAdd, CQReactType.Allow);
-            Debug.WriteLine("添加群{0}成功。", fromGroup);
+            CQ.SetGroupAddRequest(responseFlag, CQRequestType.GroupInvite, CQReactType.Allow);
         }
     }
 }
