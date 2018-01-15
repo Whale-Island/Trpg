@@ -3,37 +3,40 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace WhaleIsland.Trpg.Dice
 {
     public class DiceService
     {
         private const string ErrorMessage = "指令错误,输入.rh可查看帮助。";
+        private const int DEFAULT_COUNT = 1;
+        private const int DEFAULT_MAX = 20;
+        private const int DEFAULT_MIN = 1;
+        private const float DEFAULT_PERCENT = 1;
+        private const int DEFAULT_WEIGHTING = 0;
+        private readonly static char[] WEIGHTING_SPLIT = new char[] { '+', '-' };
+
+        private const string help = "格式：.r [一千以内数字]d[最小值，不填则默认1]~[最大值]+-[最终结果加或者减一个值]p[最终结果乘一个值] 内容" +
+            "\r\n示例：" +
+            "\r\n.r" +
+            "\r\n.r d50" +
+            "\r\n.r d50 内容" +
+            "\r\n.r 5d100" +
+            "\r\n.r 10d50~100+20p2.88 内容（50到100范围随机,最终结果先乘2.88再加20）" +
+            "\r\n.r 10d50~100p1.88-30 内容（50到100范围随机,最终结果先减30再乘1.88）";
 
         public static string ReceivedGroupMessage(long fromQQ, long fromGroup, string message)
         {
             try
             {
                 message = message.Trim(' ');
-                if (string.IsNullOrEmpty(message))
+                if (string.IsNullOrWhiteSpace(message))
                     return null;
 
                 int index = message.IndexOf(".rh");
-                if (index >= 0) {
-                    StringBuilder sb = new StringBuilder("格式：.r [一千以内数字]d[最小值，不填则默认1]-[最大值] 内容");
-                    sb.Append("\r\n示例：");
-                    sb.Append("\r\n.r");
-                    sb.Append("\r\n.r d50");
-                    sb.Append("\r\n.r d50 内容");
-                    sb.Append("\r\n.r 5d100");
-                    sb.Append("\r\n.r 5d100 内容");
-                    sb.Append("\r\n.r d50-100");
-                    sb.Append("\r\n.r d50-100 内容");
-                    sb.Append("\r\n.r 10d50-100");
-                    sb.Append("\r\n.r 10d50-100 内容");
-                    return sb.ToString();
-                }
-
+                if (index >= 0)
+                    return help;
 
                 index = message.IndexOf(".r");
                 if (index >= 0)
@@ -60,10 +63,14 @@ namespace WhaleIsland.Trpg.Dice
             try
             {
                 message = message.Trim(' ');
-                if (string.IsNullOrEmpty(message))
+                if (string.IsNullOrWhiteSpace(message))
                     return null;
 
-                int index = message.IndexOf(".r");
+                int index = message.IndexOf(".rh");
+                if (index >= 0)
+                    return help;
+
+                index = message.IndexOf(".r");
                 if (index >= 0)
                 {
                     string nickname = CQ.GetQQName(fromQQ);
@@ -87,10 +94,14 @@ namespace WhaleIsland.Trpg.Dice
             try
             {
                 message = message.Trim(' ');
-                if (string.IsNullOrEmpty(message))
+                if (string.IsNullOrWhiteSpace(message))
                     return null;
 
-                int index = message.IndexOf(".r");
+                int index = message.IndexOf(".rh");
+                if (index >= 0)
+                    return help;
+
+                index = message.IndexOf(".r");
                 if (index >= 0)
                 {
                     message = message.Substring(index);
@@ -120,25 +131,46 @@ namespace WhaleIsland.Trpg.Dice
                 string keys = cmd[1].ToUpper();
                 string context = cmd.Count() > 2 ? cmd[2] : "";
 
-                string str1 = keys.ToUpper().Substring(0, keys.IndexOf('D'));
-                string str2 = keys.ToUpper().Substring(keys.IndexOf('D') + 1);
+                int count = DEFAULT_COUNT;
+                int max = DEFAULT_MAX;
+                int min = DEFAULT_MIN;
+                float percent = DEFAULT_PERCENT;//百分比加成
+                int weighting = DEFAULT_WEIGHTING;//加权值
 
-                int count = string.IsNullOrEmpty(str1) ? 1 : int.Parse(str1);
-                int max = 0;
-                int min = 1;
+                var match = Regex.Match(keys, "\\d*D\\d*~?\\d*");
+                if (match.Success)
+                {
+                    string[] dice = match.Value.Split('D');
+                    if (!string.IsNullOrWhiteSpace(dice[0]))
+                    {
+                        count = int.Parse(dice[0]);
+                    }
 
-                if (string.IsNullOrEmpty(str2))
-                {
-                    max = 20;
+                    if (!string.IsNullOrWhiteSpace(dice[1]))
+                    {
+                        if (dice[1].IndexOf('~') < 0)
+                        {
+                            max = int.Parse(dice[1]);
+                        }
+                        else
+                        {
+                            string[] values = dice[1].Split('~');
+                            min = int.Parse(values[0]);
+                            max = int.Parse(values[1]);
+                        }
+                    }
                 }
-                else if (str2.IndexOf('-') < 0)
+
+                match = Regex.Match(keys, "P\\d+\\.?\\d*");
+                if (match.Success)
                 {
-                    max = string.IsNullOrEmpty(str2) ? 20 : int.Parse(str2);
+                    percent = float.Parse(match.Value.Substring(1));
                 }
-                else
+
+                match = Regex.Match(keys, "(\\+|\\-)\\d*");
+                if (match.Success)
                 {
-                    min = int.Parse(str2.Substring(0, str2.IndexOf('-')));
-                    max = int.Parse(str2.Substring(str2.IndexOf('-') + 1));
+                    weighting = int.Parse(match.Value);
                 }
 
                 count = count > 1000 ? 1000 : count;
@@ -158,7 +190,39 @@ namespace WhaleIsland.Trpg.Dice
 
                 if (count > 1)
                 {
-                    result = "[" + result + "] = " + total;
+                    result = string.Format("[{0}]->{1}", result, total);
+                }
+
+                if (percent != 1 && weighting != 1)
+                {
+                    int p_index = keys.IndexOf('P');
+                    int w_index = keys.IndexOfAny(WEIGHTING_SPLIT);
+                    if (p_index < w_index)
+                    {
+                        total = (int)(total * percent);
+                        result = string.Format("{0}，加成{1}->{2}", result, percent, total);
+
+                        total = total + weighting;
+                        result = string.Format("{0}，加权{1}->{2}", result, weighting, total);
+                    }
+                    else
+                    {
+                        total = total + weighting;
+                        result = string.Format("{0}，加权{1}->{2}", result, weighting, total);
+
+                        total = (int)(total * percent);
+                        result = string.Format("{0}，加成{1}->{2}", result, percent, total);
+                    }
+                }
+                else if (percent != 1)
+                {
+                    total = (int)(total * percent);
+                    result = string.Format("{0}，加成{1}->{2}", result, percent, total);
+                }
+                else if (weighting != 1)
+                {
+                    total = total + weighting;
+                    result = string.Format("{0}，加权{1}->{2}", result, weighting, total);
                 }
 
                 if (min == 1)
