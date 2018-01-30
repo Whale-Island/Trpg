@@ -104,7 +104,7 @@ namespace WhaleIsland.Trpg.Dice
                 index = message.IndexOf(".r");
                 if (index >= 0)
                 {
-                    message = message.Substring(index);
+                    message = message.Substring(index + 2);
                     var cmd = message.Split(' ').ToList();
                     cmd.RemoveAll(t => string.IsNullOrWhiteSpace(t));
                     return Roll(cmd, "");
@@ -122,14 +122,14 @@ namespace WhaleIsland.Trpg.Dice
         private static string Roll(List<string> cmd, string nickname)
         {
             Random random = new Random();
-            if (cmd.Count() == 1)
+            if (cmd.Count == 0 || string.IsNullOrWhiteSpace(cmd[0]))
             {
-                return string.Format("时间：{0}，{1} 投掷骰子D20=>{2}", DateTime.Now.ToString(), nickname, random.Next(1, 21));
+                return string.Format("时间：{0}，{1} 投掷  骰子1D20=>{2}", DateTime.Now.ToString(), nickname, random.Next(1, 21));
             }
             else
             {
-                string keys = cmd[1].ToUpper();
-                string context = cmd.Count() > 2 ? cmd[2] : "";
+                string keys = cmd[0].ToUpper();
+                string context = cmd.Count() > 2 ? cmd[1] : "";
 
                 int count = DEFAULT_COUNT;
                 int max = DEFAULT_MAX;
@@ -193,7 +193,7 @@ namespace WhaleIsland.Trpg.Dice
                     result = string.Format("[{0}]->{1}", result, total);
                 }
 
-                if (percent != 1 && weighting != 1)
+                if (percent != DEFAULT_PERCENT && weighting != DEFAULT_WEIGHTING)
                 {
                     int p_index = keys.IndexOf('P');
                     int w_index = keys.IndexOfAny(WEIGHTING_SPLIT);
@@ -214,18 +214,18 @@ namespace WhaleIsland.Trpg.Dice
                         result = string.Format("{0}，加成{1}->{2}", result, percent, total);
                     }
                 }
-                else if (percent != 1)
+                else if (percent != DEFAULT_PERCENT)
                 {
                     total = (int)(total * percent);
                     result = string.Format("{0}，加成{1}->{2}", result, percent, total);
                 }
-                else if (weighting != 1)
+                else if (weighting != DEFAULT_WEIGHTING)
                 {
                     total = total + weighting;
                     result = string.Format("{0}，加权{1}->{2}", result, weighting, total);
                 }
 
-                if (min == 1)
+                if (min == DEFAULT_MIN)
                     return string.Format("时间：{0}，{1} 投掷 {2} 骰子{3}D{4}=>{5}", DateTime.Now.ToString(), nickname, context, count, max, result);
                 return string.Format("时间：{0}，{1} 投掷 {2} 骰子{3}D{4}-{5}=>{6}", DateTime.Now.ToString(), nickname, context, count, min, max, result);
             }
