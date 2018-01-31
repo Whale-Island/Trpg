@@ -44,10 +44,7 @@ namespace WhaleIsland.Trpg.Dice
                     var groupMember = CQ.GetGroupMemberInfo(fromGroup, fromQQ);
                     string nickname = string.IsNullOrWhiteSpace(groupMember.GroupCard) ? groupMember.QQName : groupMember.GroupCard;
 
-                    message = message.Substring(index);
-                    var cmd = message.Split(' ').ToList();
-                    cmd.RemoveAll(t => string.IsNullOrWhiteSpace(t));
-                    return Roll(cmd, nickname);
+                    return Roll(message, index, nickname);
                 }
             }
             catch (Exception)
@@ -74,11 +71,7 @@ namespace WhaleIsland.Trpg.Dice
                 if (index >= 0)
                 {
                     string nickname = CQ.GetQQName(fromQQ);
-
-                    message = message.Substring(index);
-                    var cmd = message.Split(' ').ToList();
-                    cmd.RemoveAll(t => string.IsNullOrWhiteSpace(t));
-                    return Roll(cmd, nickname);
+                    return Roll(message, index, nickname);
                 }
             }
             catch (Exception)
@@ -104,23 +97,22 @@ namespace WhaleIsland.Trpg.Dice
                 index = message.IndexOf(".r");
                 if (index >= 0)
                 {
-                    message = message.Substring(index + 2);
-                    var cmd = message.Split(' ').ToList();
-                    cmd.RemoveAll(t => string.IsNullOrWhiteSpace(t));
-                    return Roll(cmd, "");
+                    return Roll(message, index, "");
                 }
             }
             catch (Exception)
             {
                 return ErrorMessage;
             }
-
             return null;
         }
 
-
-        private static string Roll(List<string> cmd, string nickname)
+        private static string Roll(string message, int index, string nickname)
         {
+            message = message.Substring(index + 2);
+            var cmd = message.Trim(' ').Split(' ').ToList();
+            cmd.RemoveAll(t => string.IsNullOrWhiteSpace(t));
+
             Random random = new Random();
             if (cmd.Count == 0 || string.IsNullOrWhiteSpace(cmd[0]))
             {
