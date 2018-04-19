@@ -21,8 +21,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhaleIsland.Trpg.GM", "Whal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhaleIsland.Trpg.Dice", "WhaleIsland.Trpg.Dice\WhaleIsland.Trpg.Dice.csproj", "{5D8A3B11-CBED-40E5-BCD9-2D7EE9858F8A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{76C96DA4-2FC2-4332-8CA0-105A01EC8DDE}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,18 +85,6 @@ Global
 		{5D8A3B11-CBED-40E5-BCD9-2D7EE9858F8A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{5D8A3B11-CBED-40E5-BCD9-2D7EE9858F8A}.Release|Win32.ActiveCfg = Release|Any CPU
 		{5D8A3B11-CBED-40E5-BCD9-2D7EE9858F8A}.Release|Win32.Build.0 = Release|Any CPU
-		{76C96DA4-2FC2-4332-8CA0-105A01EC8DDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{76C96DA4-2FC2-4332-8CA0-105A01EC8DDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{76C96DA4-2FC2-4332-8CA0-105A01EC8DDE}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{76C96DA4-2FC2-4332-8CA0-105A01EC8DDE}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{76C96DA4-2FC2-4332-8CA0-105A01EC8DDE}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{76C96DA4-2FC2-4332-8CA0-105A01EC8DDE}.Debug|Win32.Build.0 = Debug|Any CPU
-		{76C96DA4-2FC2-4332-8CA0-105A01EC8DDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{76C96DA4-2FC2-4332-8CA0-105A01EC8DDE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{76C96DA4-2FC2-4332-8CA0-105A01EC8DDE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{76C96DA4-2FC2-4332-8CA0-105A01EC8DDE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{76C96DA4-2FC2-4332-8CA0-105A01EC8DDE}.Release|Win32.ActiveCfg = Release|Any CPU
-		{76C96DA4-2FC2-4332-8CA0-105A01EC8DDE}.Release|Win32.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -106,7 +92,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{EEB62FCF-AF07-488F-8084-B18E8D97649E} = {0CB0267E-7447-497F-ABB7-DB45CF5A4EF4}
 		{5D8A3B11-CBED-40E5-BCD9-2D7EE9858F8A} = {0CB0267E-7447-497F-ABB7-DB45CF5A4EF4}
-		{76C96DA4-2FC2-4332-8CA0-105A01EC8DDE} = {0CB0267E-7447-497F-ABB7-DB45CF5A4EF4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {28E0A399-2D59-400A-9FBE-7F3ABD4D4B30}

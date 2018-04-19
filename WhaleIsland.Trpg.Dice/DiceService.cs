@@ -34,17 +34,23 @@ namespace WhaleIsland.Trpg.Dice
                 if (string.IsNullOrWhiteSpace(message))
                     return null;
 
-                int index = message.IndexOf(".rh");
+                int index = message.ToLower().IndexOf(".rh");
                 if (index >= 0)
                     return help;
 
-                index = message.IndexOf(".r");
+                index = message.ToLower().IndexOf(".r");
                 if (index >= 0)
                 {
                     var groupMember = CQ.GetGroupMemberInfo(fromGroup, fromQQ);
                     string nickname = string.IsNullOrWhiteSpace(groupMember.GroupCard) ? groupMember.QQName : groupMember.GroupCard;
 
                     return Roll(message, index, nickname);
+                }
+                index = message.ToLower().IndexOf(".ww");
+                if (index >= 0) {
+                    var groupMember = CQ.GetGroupMemberInfo(fromGroup, fromQQ);
+                    string nickname = string.IsNullOrWhiteSpace(groupMember.GroupCard) ? groupMember.QQName : groupMember.GroupCard;
+                    return WW(message, index, nickname);
                 }
             }
             catch (Exception)
@@ -63,15 +69,20 @@ namespace WhaleIsland.Trpg.Dice
                 if (string.IsNullOrWhiteSpace(message))
                     return null;
 
-                int index = message.IndexOf(".rh");
+                int index = message.ToLower().IndexOf(".rh");
                 if (index >= 0)
                     return help;
 
-                index = message.IndexOf(".r");
+                index = message.ToLower().IndexOf(".r");
                 if (index >= 0)
                 {
                     string nickname = CQ.GetQQName(fromQQ);
                     return Roll(message, index, nickname);
+                }
+                index = message.ToLower().IndexOf(".ww");
+                if (index >= 0) {
+                    string nickname = CQ.GetQQName(fromQQ);
+                    return WW(message, index, nickname);
                 }
             }
             catch (Exception)
@@ -90,15 +101,16 @@ namespace WhaleIsland.Trpg.Dice
                 if (string.IsNullOrWhiteSpace(message))
                     return null;
 
-                int index = message.IndexOf(".rh");
+                int index = message.ToLower().IndexOf(".rh");
                 if (index >= 0)
                     return help;
 
-                index = message.IndexOf(".r");
+                index = message.ToLower().IndexOf(".r");
                 if (index >= 0)
-                {
-                    return Roll(message, index, "");
-                }
+                    return Roll(message, index, string.Empty);
+                index = message.ToLower().IndexOf(".ww");
+                if (index >= 0)
+                    return WW(message, index, string.Empty);
             }
             catch (Exception)
             {
@@ -121,7 +133,7 @@ namespace WhaleIsland.Trpg.Dice
             else
             {
                 string keys = cmd[0].ToUpper();
-                string context = cmd.Count() > 2 ? cmd[1] : "";
+                string context = cmd.Count() >= 2 ? cmd[1] : "";
 
                 int count = DEFAULT_COUNT;
                 int max = DEFAULT_MAX;
@@ -221,6 +233,51 @@ namespace WhaleIsland.Trpg.Dice
                     return string.Format("时间：{0}，{1} 投掷 {2} 骰子{3}D{4}=>{5}", DateTime.Now.ToString(), nickname, context, count, max, result);
                 return string.Format("时间：{0}，{1} 投掷 {2} 骰子{3}D{4}-{5}=>{6}", DateTime.Now.ToString(), nickname, context, count, min, max, result);
             }
+        }
+
+        private static string WW(string message, int index, string nickname)
+        {
+            message = message.ToUpper();
+            int count = 1;
+            int attached = 10;
+            var match = Regex.Match(message, "WW\\d+");
+            if (match.Success)
+            {
+                count = int.Parse(match.Value.Substring(2));
+            }
+            match = Regex.Match(message, "A\\d+");
+            if (match.Success)
+            {
+                attached = int.Parse(match.Value.Substring(1));
+                if (attached < 8 || attached > 10)
+                {
+                    return ".ww的加骰必须为8-10";
+                }
+            }
+            Random random = new Random();
+            string result = "";
+            int ten_strike = 0;
+            int success = 0;
+           
+            for (int i = 0; i < count; i++)
+            {
+                int t = random.Next(1, 11);
+
+                if (t == 10)
+                {
+                    ten_strike++;
+                    i--;
+                }
+                else if (t >= 6)
+                {
+                    success++;
+                }
+
+                result += t.ToString();
+                if (i < count - 1)
+                    result += ",";
+            }
+            return string.Format("时间：{0}，{1} 投掷  骰子.ww{2}a{3} ->[{4}] 成功数：{5},大成功数：{6}", DateTime.Now.ToString(), nickname, count, attached, result, success, ten_strike);
         }
     }
 }
