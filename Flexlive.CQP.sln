@@ -17,8 +17,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flexlive.CQP.Framework", "s
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Flexlive.CQP.CQCProxy", "src\Flexlive.CQP.CQCProxy\CQPDemo.vcxproj", "{9D36EAFF-6BF0-4BDE-A20C-5BCB92DE79D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhaleIsland.Trpg.GM", "WhaleIsland.Trpg.GM\WhaleIsland.Trpg.GM.csproj", "{EEB62FCF-AF07-488F-8084-B18E8D97649E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhaleIsland.Trpg.Dice", "WhaleIsland.Trpg.Dice\WhaleIsland.Trpg.Dice.csproj", "{5D8A3B11-CBED-40E5-BCD9-2D7EE9858F8A}"
 EndProject
 Global
@@ -61,18 +59,6 @@ Global
 		{9D36EAFF-6BF0-4BDE-A20C-5BCB92DE79D6}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{9D36EAFF-6BF0-4BDE-A20C-5BCB92DE79D6}.Release|Win32.ActiveCfg = Release|Win32
 		{9D36EAFF-6BF0-4BDE-A20C-5BCB92DE79D6}.Release|Win32.Build.0 = Release|Win32
-		{EEB62FCF-AF07-488F-8084-B18E8D97649E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EEB62FCF-AF07-488F-8084-B18E8D97649E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EEB62FCF-AF07-488F-8084-B18E8D97649E}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{EEB62FCF-AF07-488F-8084-B18E8D97649E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{EEB62FCF-AF07-488F-8084-B18E8D97649E}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{EEB62FCF-AF07-488F-8084-B18E8D97649E}.Debug|Win32.Build.0 = Debug|Any CPU
-		{EEB62FCF-AF07-488F-8084-B18E8D97649E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EEB62FCF-AF07-488F-8084-B18E8D97649E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EEB62FCF-AF07-488F-8084-B18E8D97649E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{EEB62FCF-AF07-488F-8084-B18E8D97649E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{EEB62FCF-AF07-488F-8084-B18E8D97649E}.Release|Win32.ActiveCfg = Release|Any CPU
-		{EEB62FCF-AF07-488F-8084-B18E8D97649E}.Release|Win32.Build.0 = Release|Any CPU
 		{5D8A3B11-CBED-40E5-BCD9-2D7EE9858F8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5D8A3B11-CBED-40E5-BCD9-2D7EE9858F8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D8A3B11-CBED-40E5-BCD9-2D7EE9858F8A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -90,7 +76,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{EEB62FCF-AF07-488F-8084-B18E8D97649E} = {0CB0267E-7447-497F-ABB7-DB45CF5A4EF4}
 		{5D8A3B11-CBED-40E5-BCD9-2D7EE9858F8A} = {0CB0267E-7447-497F-ABB7-DB45CF5A4EF4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
