@@ -47,11 +47,20 @@ namespace WhaleIsland.Trpg.Dice
                     return Roll(message, index, nickname);
                 }
                 index = message.ToLower().IndexOf(".ww");
-                if (index >= 0) {
+                if (index >= 0)
+                {
                     var groupMember = CQ.GetGroupMemberInfo(fromGroup, fromQQ);
                     string nickname = string.IsNullOrWhiteSpace(groupMember.GroupCard) ? groupMember.QQName : groupMember.GroupCard;
                     return WW(message, index, nickname);
                 }
+                index = message.ToLower().IndexOf(".f");
+                if (index >= 0)
+                {
+                    var groupMember = CQ.GetGroupMemberInfo(fromGroup, fromQQ);
+                    string nickname = string.IsNullOrWhiteSpace(groupMember.GroupCard) ? groupMember.QQName : groupMember.GroupCard;
+                    return Fata(message, index, nickname);
+                }
+
             }
             catch (Exception)
             {
@@ -60,6 +69,7 @@ namespace WhaleIsland.Trpg.Dice
 
             return null;
         }
+
 
         public static string ReceivedDiscussMessage(long fromQQ, string message)
         {
@@ -80,9 +90,16 @@ namespace WhaleIsland.Trpg.Dice
                     return Roll(message, index, nickname);
                 }
                 index = message.ToLower().IndexOf(".ww");
-                if (index >= 0) {
+                if (index >= 0)
+                {
                     string nickname = CQ.GetQQName(fromQQ);
                     return WW(message, index, nickname);
+                }
+                index = message.ToLower().IndexOf(".f");
+                if (index >= 0)
+                {
+                    string nickname = CQ.GetQQName(fromQQ);
+                    return Fata(message, index, nickname);
                 }
             }
             catch (Exception)
@@ -111,6 +128,9 @@ namespace WhaleIsland.Trpg.Dice
                 index = message.ToLower().IndexOf(".ww");
                 if (index >= 0)
                     return WW(message, index, string.Empty);
+                index = message.ToLower().IndexOf(".f");
+                if (index >= 0)
+                    return Fata(message, index, string.Empty);
             }
             catch (Exception)
             {
@@ -119,6 +139,13 @@ namespace WhaleIsland.Trpg.Dice
             return null;
         }
 
+        /// <summary>
+        /// 通用骰
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="index"></param>
+        /// <param name="nickname"></param>
+        /// <returns></returns>
         private static string Roll(string message, int index, string nickname)
         {
             message = message.Substring(index + 2);
@@ -194,7 +221,7 @@ namespace WhaleIsland.Trpg.Dice
 
                 if (count > 1)
                 {
-                    result = string.Format("[{0}]->{1}", result, total);
+                    result = string.Format("[{0}]→{1}", result, total);
                 }
 
                 if (percent != DEFAULT_PERCENT && weighting != DEFAULT_WEIGHTING)
@@ -204,29 +231,29 @@ namespace WhaleIsland.Trpg.Dice
                     if (p_index < w_index)
                     {
                         total = (int)(total * percent);
-                        result = string.Format("{0}，加成{1}->{2}", result, percent, total);
+                        result = string.Format("{0}，加成{1}→{2}", result, percent, total);
 
                         total = total + weighting;
-                        result = string.Format("{0}，加权{1}->{2}", result, weighting, total);
+                        result = string.Format("{0}，加权{1}→{2}", result, weighting, total);
                     }
                     else
                     {
                         total = total + weighting;
-                        result = string.Format("{0}，加权{1}->{2}", result, weighting, total);
+                        result = string.Format("{0}，加权{1}→{2}", result, weighting, total);
 
                         total = (int)(total * percent);
-                        result = string.Format("{0}，加成{1}->{2}", result, percent, total);
+                        result = string.Format("{0}，加成{1}→{2}", result, percent, total);
                     }
                 }
                 else if (percent != DEFAULT_PERCENT)
                 {
                     total = (int)(total * percent);
-                    result = string.Format("{0}，加成{1}->{2}", result, percent, total);
+                    result = string.Format("{0}，加成{1}→{2}", result, percent, total);
                 }
                 else if (weighting != DEFAULT_WEIGHTING)
                 {
                     total = total + weighting;
-                    result = string.Format("{0}，加权{1}->{2}", result, weighting, total);
+                    result = string.Format("{0}，加权{1}→{2}", result, weighting, total);
                 }
 
                 if (min == DEFAULT_MIN)
@@ -235,6 +262,13 @@ namespace WhaleIsland.Trpg.Dice
             }
         }
 
+        /// <summary>
+        /// 私人骰
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="index"></param>
+        /// <param name="nickname"></param>
+        /// <returns></returns>
         private static string WW(string message, int index, string nickname)
         {
             message = message.ToUpper();
@@ -258,7 +292,7 @@ namespace WhaleIsland.Trpg.Dice
             string result = "";
             int ten_strike = 0;
             int success = 0;
-           
+
             for (int i = 0; i < count; i++)
             {
                 int t = random.Next(1, 11);
@@ -277,7 +311,98 @@ namespace WhaleIsland.Trpg.Dice
                 if (i < count - 1)
                     result += ",";
             }
-            return string.Format("时间：{0}，{1} 投掷  骰子.ww{2}a{3} ->[{4}] 成功数：{5},大成功数：{6}", DateTime.Now.ToString(), nickname, count, attached, result, success, ten_strike);
+            return string.Format("时间：{0}，{1} 投掷  骰子.ww{2}a{3} →[{4}] 成功数：{5},大成功数：{6}", DateTime.Now.ToString(), nickname, count, attached, result, success, ten_strike);
         }
+
+        /// <summary>
+        /// 私人骰
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="index"></param>
+        /// <param name="nickname"></param>
+        /// <returns></returns>
+        private static string Fata(string message, int index, string nickname)
+        {
+            message = message.Substring(index + 2);
+            var cmd = message.Trim(' ').Split(' ').ToList();
+            cmd.RemoveAll(t => string.IsNullOrWhiteSpace(t));
+
+            Random random = new Random();
+            string keys = cmd.Count() >= 1 ? cmd[0].ToUpper() : ""; 
+            string context = cmd.Count() >= 2 ? cmd[1] : "";
+
+            int count = 4;
+            int max = 3;
+            int min = DEFAULT_MIN;
+            float percent = DEFAULT_PERCENT;//百分比加成
+            int weighting = -8;//加权值
+
+            var match = Regex.Match(keys, "P\\d+\\.?\\d*");
+            if (match.Success)
+            {
+                percent = float.Parse(match.Value.Substring(1));
+            }
+
+            match = Regex.Match(keys, "(\\+|\\-)\\d*");
+            if (match.Success)
+            {
+                weighting = int.Parse(match.Value);
+            }
+
+            string result = "";
+            int total = 0;
+
+            for (int i = 0; i < count; i++)
+            {
+                int t = random.Next(min, max + 1);
+                total += t;
+
+                result += t.ToString();
+                if (i < count - 1)
+                    result += ",";
+            }
+
+            if (count > 1)
+            {
+                result = string.Format("[{0}]→{1}", result, total);
+            }
+
+            if (percent != DEFAULT_PERCENT && weighting != DEFAULT_WEIGHTING)
+            {
+                int p_index = keys.IndexOf('P');
+                int w_index = keys.IndexOfAny(WEIGHTING_SPLIT);
+                if (p_index < w_index)
+                {
+                    total = (int)(total * percent);
+                    result = string.Format("{0}，加成{1}→{2}", result, percent, total);
+
+                    total = total + weighting;
+                    result = string.Format("{0}，加权{1}→{2}", result, weighting, total);
+                }
+                else
+                {
+                    total = total + weighting;
+                    result = string.Format("{0}，加权{1}→{2}", result, weighting, total);
+
+                    total = (int)(total * percent);
+                    result = string.Format("{0}，加成{1}→{2}", result, percent, total);
+                }
+            }
+            else if (percent != DEFAULT_PERCENT)
+            {
+                total = (int)(total * percent);
+                result = string.Format("{0}，加成{1}→{2}", result, percent, total);
+            }
+            else if (weighting != DEFAULT_WEIGHTING)
+            {
+                total = total + weighting;
+                result = string.Format("{0}，加权{1}→{2}", result, weighting, total);
+            }
+
+            if (min == DEFAULT_MIN)
+                return string.Format("时间：{0}，{1} 投掷 {2} 骰子{3}D{4}=>{5}", DateTime.Now.ToString(), nickname, context, count, max, result);
+            return string.Format("时间：{0}，{1} 投掷 {2} 骰子{3}D{4}-{5}=>{6}", DateTime.Now.ToString(), nickname, context, count, min, max, result);
+        }
+
     }
 }
