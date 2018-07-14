@@ -1,5 +1,6 @@
 ﻿using Flexlive.CQP.Framework;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace WhaleIsland.Trpg.Dice
@@ -84,7 +85,24 @@ namespace WhaleIsland.Trpg.Dice
                 try
                 {
                     string result = String.Format(DiceService.ReceivedGroupMessage(fromQQ, fromGroup, msg));
-                    if (result != null) CQ.SendGroupMessage(fromGroup, result);
+                    if (result != null)
+                    {
+                        if (msg.ToLower().Contains(".rs"))
+                        {//暗骰只发送给投掷者与OB玩家
+                            CQ.SendGroupMessage(fromGroup, "投掷暗骰，结果已隐藏。");
+                            CQ.SendPrivateMessage(fromQQ, result);
+
+                            if (DiceService.OBGroupMap.TryGetValue(fromGroup, out List<long> list) && list.Count > 0)
+                            {
+                                foreach (long qq in list)
+                                {
+                                    if (qq != fromQQ)
+                                        CQ.SendPrivateMessage(qq, result);
+                                }
+                            }
+                        }
+                        else CQ.SendGroupMessage(fromGroup, result);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -108,8 +126,25 @@ namespace WhaleIsland.Trpg.Dice
             {
                 try
                 {
-                    string result = String.Format(DiceService.ReceivedDiscussMessage(fromQQ, msg));
-                    if (result != null) CQ.SendDiscussMessage(fromDiscuss, result);
+                    string result = String.Format(DiceService.ReceivedDiscussMessage(fromQQ, fromDiscuss, msg));
+                    if (result != null)
+                    {
+                        if (msg.ToLower().Contains(".rs"))
+                        {//暗骰只发送给投掷者与OB玩家
+                            CQ.SendDiscussMessage(fromDiscuss, "投掷暗骰，结果已隐藏。");
+                            CQ.SendPrivateMessage(fromQQ, result);
+
+                            if (DiceService.OBDiscussMap.TryGetValue(fromDiscuss, out List<long> list) && list.Count > 0)
+                            {
+                                foreach (long qq in list)
+                                {
+                                    if (qq != fromQQ)
+                                        CQ.SendPrivateMessage(qq, result);
+                                }
+                            }
+                        }
+                        else CQ.SendDiscussMessage(fromDiscuss, result);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -151,6 +186,17 @@ namespace WhaleIsland.Trpg.Dice
         /// <param name="beingOperateQQ">被操作QQ。</param>
         public override void GroupMemberDecrease(int subType, int sendTime, long fromGroup, long fromQQ, long beingOperateQQ)
         {
+            if (DiceService.OBGroupMap.TryGetValue(fromGroup, out List<long> list))
+            {
+                if (subType == 3)
+                {
+                    DiceService.OBGroupMap.Remove(fromGroup);
+                }
+                else
+                {
+                    list.Remove(beingOperateQQ);
+                }
+            }
         }
 
         /// <summary>

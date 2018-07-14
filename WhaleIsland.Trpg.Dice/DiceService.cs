@@ -17,6 +17,9 @@ namespace WhaleIsland.Trpg.Dice
         private const int DEFAULT_WEIGHTING = 0;
         private readonly static char[] WEIGHTING_SPLIT = new char[] { '+', '-' };
 
+        public static Dictionary<long, List<long>> OBGroupMap = new Dictionary<long, List<long>>();
+        public static Dictionary<long, List<long>> OBDiscussMap = new Dictionary<long, List<long>>();
+
         private const string help = "格式：.r [一千以内数字]d[最小值，不填则默认1]~[最大值]+-[最终结果加或者减一个值]p[最终结果乘一个值] 内容" +
             "\r\n示例：" +
             "\r\n.r" +
@@ -26,6 +29,14 @@ namespace WhaleIsland.Trpg.Dice
             "\r\n.r 10d50~100+20p2.88 内容（50到100范围随机,最终结果先乘2.88再加20）" +
             "\r\n.r 10d50~100p1.88-30 内容（50到100范围随机,最终结果先减30再乘1.88）";
 
+
+        /// <summary>
+        /// 接收群消息
+        /// </summary>
+        /// <param name="fromQQ"></param>
+        /// <param name="fromGroup"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
         public static string ReceivedGroupMessage(long fromQQ, long fromGroup, string message)
         {
             try
@@ -61,9 +72,37 @@ namespace WhaleIsland.Trpg.Dice
                     return Fata(message, index, nickname);
                 }
 
+                index = message.ToLower().IndexOf(".oblist");
+                if (index >= 0)
+                {
+                    return OBList(0, fromGroup, fromQQ);
+                }
+
+                index = message.ToLower().IndexOf(".clob");
+                if (index >= 0)
+                {
+                    return CLOB(0, fromGroup, fromQQ);
+                }
+
+                index = message.ToLower().IndexOf(".exob");
+                if (index >= 0)
+                {
+                    var groupMember = CQ.GetGroupMemberInfo(fromGroup, fromQQ);
+                    string nickname = string.IsNullOrWhiteSpace(groupMember.GroupCard) ? groupMember.QQName : groupMember.GroupCard;
+                    return EXOB(0, fromGroup, fromQQ, nickname);
+                }
+
+                index = message.ToLower().IndexOf(".ob");
+                if (index >= 0)
+                {
+                    var groupMember = CQ.GetGroupMemberInfo(fromGroup, fromQQ);
+                    string nickname = string.IsNullOrWhiteSpace(groupMember.GroupCard) ? groupMember.QQName : groupMember.GroupCard;
+                    return ADDOB(0, fromGroup, fromQQ, nickname);
+                }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.StackTrace);
                 return ErrorMessage;
             }
 
@@ -71,7 +110,14 @@ namespace WhaleIsland.Trpg.Dice
         }
 
 
-        public static string ReceivedDiscussMessage(long fromQQ, string message)
+
+        /// <summary>
+        /// 接收讨论组消息
+        /// </summary>
+        /// <param name="fromQQ"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public static string ReceivedDiscussMessage(long fromQQ, long fromDiscuss, string message)
         {
             try
             {
@@ -89,6 +135,36 @@ namespace WhaleIsland.Trpg.Dice
                     string nickname = CQ.GetQQName(fromQQ);
                     return Roll(message, index, nickname);
                 }
+
+                index = message.ToLower().IndexOf(".clob");
+                if (index >= 0)
+                {
+                    return CLOB(1, fromDiscuss, fromQQ);
+                }
+
+                index = message.ToLower().IndexOf(".oblist");
+                if (index >= 0)
+                {
+                    return OBList(1, fromDiscuss, fromQQ);
+                }
+
+                index = message.ToLower().IndexOf(".exob");
+                if (index >= 0)
+                {
+                    return EXOB(1, fromDiscuss, fromQQ, string.Empty);
+                }
+
+                index = message.ToLower().IndexOf(".ob");
+                if (index >= 0)
+                {
+                    return ADDOB(1, fromDiscuss, fromQQ, string.Empty);
+                }
+
+
+
+
+
+                // 私人骰
                 index = message.ToLower().IndexOf(".ww");
                 if (index >= 0)
                 {
@@ -101,6 +177,7 @@ namespace WhaleIsland.Trpg.Dice
                     string nickname = CQ.GetQQName(fromQQ);
                     return Fata(message, index, nickname);
                 }
+
             }
             catch (Exception)
             {
@@ -110,6 +187,12 @@ namespace WhaleIsland.Trpg.Dice
             return null;
         }
 
+        /// <summary>
+        /// 接收私人消息
+        /// </summary>
+        /// <param name="qq"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
         public static string Received(long qq, string message)
         {
             try
@@ -262,6 +345,69 @@ namespace WhaleIsland.Trpg.Dice
             }
         }
 
+        private static string CLOB(byte type, long fromGroup, long fromQQ)
+        {
+            Dictionary<long, List<long>> OBMap = type == 0 ? OBGroupMap : OBDiscussMap;
+            if (OBMap.TryGetValue(fromGroup, out List<long> list))
+            {
+                list.Clear();
+            }
+            return string.Format("OB列表已清空。");
+        }
+
+        private static string OBList(byte type, long fromGroup, long fromQQ)
+        {
+            Dictionary<long, List<long>> OBMap = type == 0 ? OBGroupMap : OBDiscussMap;
+            if (OBMap.TryGetValue(fromGroup, out List<long> list) && list.Count > 0)
+            {
+                StringBuilder sb = new StringBuilder();
+
+                foreach (long qq in list)
+                {
+                    var groupMember = CQ.GetGroupMemberInfo(fromGroup, qq);
+                    string nn = string.IsNullOrWhiteSpace(groupMember.GroupCard) ? groupMember.QQName : groupMember.GroupCard;
+                    sb.Append(nn).Append("  ");
+                }
+                return string.Format("当前OB人数为{0}，名单：{1}", list.Count, sb.ToString());
+            }
+
+            return string.Format("当前OB列表为空，还未有用户加入OB。");
+        }
+
+        private static string ADDOB(byte type, long fromGroup, long fromQQ, string nickname)
+        {
+            Dictionary<long, List<long>> OBMap = type == 0 ? OBGroupMap : OBDiscussMap;
+
+            if (OBMap.TryGetValue(fromGroup, out List<long> list))
+            {
+                if (list.Contains(fromQQ))
+                {
+                    return string.Format("{0}已加入OB，无需再次加入。", nickname);
+                }
+                list.Add(fromQQ);
+            }
+            else
+            {
+                list = new List<long> { fromQQ };
+                OBMap.Add(fromGroup, list);
+            }
+            return string.Format("{0}加入OB，当前OB人数为：{1}。\r\n输入.exob可退出OB。\r\n输入.oblist检视OB列表。\r\n输入.clob清空OB列表。\r\n注：OB列表每周自动清理。", nickname, list.Count);
+        }
+
+        private static string EXOB(byte type, long fromGroup, long fromQQ, string nickname)
+        {
+            Dictionary<long, List<long>> OBMap = type == 0 ? OBGroupMap : OBDiscussMap;
+            if (OBMap.TryGetValue(fromGroup, out List<long> list))
+            {
+                if (list.Contains(fromQQ))
+                {
+                    list.Remove(fromQQ);
+                    return string.Format("{0}退出OB，当前OB人数为：{1}。", nickname, list.Count);
+                }
+            }
+            return string.Format("{0}不在OB列表内。", nickname);
+        }
+
         /// <summary>
         /// 私人骰
         /// </summary>
@@ -328,7 +474,7 @@ namespace WhaleIsland.Trpg.Dice
             cmd.RemoveAll(t => string.IsNullOrWhiteSpace(t));
 
             Random random = new Random();
-            string keys = cmd.Count() >= 1 ? cmd[0].ToUpper() : ""; 
+            string keys = cmd.Count() >= 1 ? cmd[0].ToUpper() : "";
             string context = cmd.Count() >= 2 ? cmd[1] : "";
 
             int count = 4;
