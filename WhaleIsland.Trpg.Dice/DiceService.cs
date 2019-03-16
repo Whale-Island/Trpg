@@ -49,6 +49,15 @@ namespace WhaleIsland.Trpg.Dice
                 if (index >= 0)
                     return help;
 
+                index = message.ToLower().IndexOf(".jrrp");
+                if (index >= 0)
+                {
+                    var groupMember = CQ.GetGroupMemberInfo(fromGroup, fromQQ);
+                    string nickname = string.IsNullOrWhiteSpace(groupMember.GroupCard) ? groupMember.QQName : groupMember.GroupCard;
+
+                    return JRRP(message, fromQQ, nickname);
+                }
+
                 index = message.ToLower().IndexOf(".r");
                 if (index >= 0)
                 {
@@ -111,6 +120,7 @@ namespace WhaleIsland.Trpg.Dice
 
 
 
+
         /// <summary>
         /// 接收讨论组消息
         /// </summary>
@@ -128,6 +138,14 @@ namespace WhaleIsland.Trpg.Dice
                 int index = message.ToLower().IndexOf(".rh");
                 if (index >= 0)
                     return help;
+
+                index = message.ToLower().IndexOf(".jrrp");
+                if (index >= 0)
+                {
+                    string nickname = CQ.GetQQName(fromQQ);
+
+                    return JRRP(message, fromQQ, nickname);
+                }
 
                 index = message.ToLower().IndexOf(".r");
                 if (index >= 0)
@@ -159,8 +177,6 @@ namespace WhaleIsland.Trpg.Dice
                 {
                     return ADDOB(1, fromDiscuss, fromQQ, string.Empty);
                 }
-
-
 
 
 
@@ -205,6 +221,9 @@ namespace WhaleIsland.Trpg.Dice
                 if (index >= 0)
                     return help;
 
+                index = message.ToLower().IndexOf(".jrrp");
+                if (index >= 0)
+                    return JRRP(message, qq, string.Empty);
                 index = message.ToLower().IndexOf(".r");
                 if (index >= 0)
                     return Roll(message, index, string.Empty);
@@ -344,6 +363,16 @@ namespace WhaleIsland.Trpg.Dice
                 return string.Format("时间：{0}，{1} 投掷 {2} 骰子{3}D{4}-{5}=>{6}", DateTime.Now.ToString(), nickname, context, count, min, max, result);
             }
         }
+
+        private static string JRRP(string message, long fromQQ, string nickname)
+        {
+            long seed = DateTime.Now.DayOfYear + DateTime.Now.Year + fromQQ;
+            Random random = new Random((int)seed);
+            int count = random.Next(0,100);
+
+            return string.Format("时间：{0}，{1} 今日人品值为：{2} ", DateTime.Now.ToString(), nickname, count);
+        }
+
 
         private static string CLOB(byte type, long fromGroup, long fromQQ)
         {
