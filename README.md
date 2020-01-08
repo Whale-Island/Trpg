@@ -1,5 +1,5 @@
 ﻿# Trpg
-基于CQA与Flexlive.CQP.Framework开发的Trpg工具。
+基于CQA与Flexlive.CQP.Framew开发的Trpg工具。
 
 # Dice
 **使用方法 私聊/群/讨论组输入.r+空格+【骰子数】d【最小值】+【(~)英文波浪号】+【最大值】+【p】+【百分比加成值】+【（+-）加或者减】+【加权值】+空格+【内容】**
